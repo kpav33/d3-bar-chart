@@ -12,7 +12,7 @@ let yAxisScale;
 
 let width = 800;
 let height = 600;
-let padding = 40;
+let padding = 90;
 
 let svg = d3.select("svg");
 
@@ -58,6 +58,26 @@ function drawBars() {
     .style("visibility", "hidden")
     .style("width", "auto")
     .style("height", "auto");
+  // `${d[0]} $${d[1]} Billion`
+  function yearParse(data) {
+    //console.log(data[0].split("-"));
+    let arr = data[0].split("-");
+    let year;
+    // console.log(year);
+    //console.log(parseInt(arr[1]));
+    let month = parseInt(arr[1]);
+    if (month < 4) {
+      year = `${arr[0]} Q1`;
+    } else if (month > 3 && month < 7) {
+      year = `${arr[0]} Q2`;
+    } else if (month > 6 && month < 10) {
+      year = `${arr[0]} Q3`;
+    } else {
+      year = `${arr[0]} Q4`;
+    }
+
+    return `${year} | $${data[1]} Billion`;
+  }
 
   // Draw bars
   svg
@@ -74,7 +94,7 @@ function drawBars() {
     .attr("y", (d) => height - padding - heightScale(d[1]))
     .on("mouseover", (d) => {
       tooltip.transition().style("visibility", "visible");
-      tooltip.text(d[0]).attr("data-date", d[0]);
+      tooltip.text(yearParse(d)).attr("data-date", d[0]);
     })
     .on("mouseout", (d) => tooltip.transition().style("visibility", "hidden"));
 }
@@ -89,6 +109,14 @@ function generateAxes() {
     .attr("id", "x-axis")
     .attr("transform", `translate(0, ${height - padding})`);
 
+  svg
+    .append("text")
+    .attr("id", "x-axis-label")
+    .attr("y", height - 45)
+    .attr("x", width / 2)
+    .style("text-anchor", "middle")
+    .text("Year");
+
   let yAxis = d3.axisLeft(yAxisScale);
 
   svg
@@ -96,13 +124,23 @@ function generateAxes() {
     .call(yAxis)
     .attr("id", "y-axis")
     .attr("transform", `translate(${padding}, 0)`);
+
+  svg
+    .append("text")
+    .attr("id", "y-axis-label")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0)
+    .attr("x", 0 - height / 2)
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Gross Domestic Product");
 }
 
 req.open("GET", url, true);
 req.onload = () => {
   data = JSON.parse(req.responseText);
   values = data.data;
-  console.log(values);
+  //console.log(values);
   drawCanvas();
   generateScales();
   drawBars();
