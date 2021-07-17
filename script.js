@@ -16,10 +16,12 @@ let padding = 90;
 
 let svg = d3.select("svg");
 
+// Draw canvas
 function drawCanvas() {
   svg.attr("width", width).attr("height", height);
 }
 
+// Generate necessary scales
 function generateScales() {
   // Set scales
   heightScale = d3
@@ -36,9 +38,6 @@ function generateScales() {
     return new Date(d[0]);
   });
 
-  // console.log(datesArray);
-
-  // Test if you could just use [0, datesArray.length - 1] with the domain, since the datesArray is already sorted from oldest to newest
   xAxisScale = d3
     .scaleTime()
     .domain([d3.min(datesArray), d3.max(datesArray)])
@@ -50,6 +49,7 @@ function generateScales() {
     .range([height - padding, padding]);
 }
 
+// Draw bars
 function drawBars() {
   let tooltip = d3
     .select("body")
@@ -58,13 +58,9 @@ function drawBars() {
     .style("visibility", "hidden")
     .style("width", "auto")
     .style("height", "auto");
-  // `${d[0]} $${d[1]} Billion`
   function yearParse(data) {
-    //console.log(data[0].split("-"));
     let arr = data[0].split("-");
     let year;
-    // console.log(year);
-    //console.log(parseInt(arr[1]));
     let month = parseInt(arr[1]);
     if (month < 4) {
       year = `${arr[0]} Q1`;
@@ -99,6 +95,7 @@ function drawBars() {
     .on("mouseout", (d) => tooltip.transition().style("visibility", "hidden"));
 }
 
+// Generate axes and their titles
 function generateAxes() {
   // Generate x and y axes
   let xAxis = d3.axisBottom(xAxisScale);
@@ -136,6 +133,7 @@ function generateAxes() {
     .text("Gross Domestic Product");
 }
 
+// Get data
 req.open("GET", url, true);
 req.onload = () => {
   data = JSON.parse(req.responseText);
